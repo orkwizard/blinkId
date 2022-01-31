@@ -47,6 +47,7 @@ class _MyAppState extends State<MyApp> {
         } else {
           _resultString = getIdResultString(result);
           print(result.fullName);
+          print(result.lastName);
         }
 
         setState(() {
