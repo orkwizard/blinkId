@@ -1,18 +1,21 @@
 import 'dart:convert';
 
+import 'package:blinkedid/encuesta1.dart';
 import 'package:flutter/material.dart';
 import 'package:blinkid_flutter/microblink_scanner.dart';
 
 class DatosPage extends StatefulWidget {
-  String datos,
-      fullDocumentFrontImageBase64,
+  String fullDocumentFrontImageBase64,
       fullDocumentBackImageBase64,
-      faceImageBase64;
+      faceImageBase64,
+      datosString;
+  BlinkIdCombinedRecognizerResult datos;
   DatosPage(
       {required this.datos,
       required this.fullDocumentFrontImageBase64,
       required this.fullDocumentBackImageBase64,
-      required this.faceImageBase64});
+      required this.faceImageBase64,
+      required this.datosString});
   @override
   _DatosPageState createState() => _DatosPageState();
 }
@@ -20,10 +23,11 @@ class DatosPage extends StatefulWidget {
 class _DatosPageState extends State<DatosPage> {
   late double w, h;
 
-  late String datos,
-      _fullDocumentFrontImageBase64,
+  late String _fullDocumentFrontImageBase64,
       _fullDocumentBackImageBase64,
-      _faceImageBase64;
+      _faceImageBase64,
+      datosString;
+  late BlinkIdCombinedRecognizerResult datos;
   late Widget fullDocumentFrontImage = SizedBox();
   late Widget fullDocumentBackImage = SizedBox();
   late Widget faceImage = SizedBox();
@@ -34,6 +38,7 @@ class _DatosPageState extends State<DatosPage> {
     _fullDocumentFrontImageBase64 = this.widget.fullDocumentFrontImageBase64;
     _fullDocumentBackImageBase64 = this.widget.fullDocumentBackImageBase64;
     _faceImageBase64 = this.widget.faceImageBase64;
+    datosString = this.widget.datosString;
     super.initState();
   }
 
@@ -44,7 +49,9 @@ class _DatosPageState extends State<DatosPage> {
 
     return Scaffold(
         appBar: AppBar(
-          toolbarHeight: 0,
+          flexibleSpace: _banner(),
+          elevation: 0,
+          //toolbarHeight: ,
         ),
         body: GestureDetector(
           onTap: () {
@@ -56,10 +63,25 @@ class _DatosPageState extends State<DatosPage> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                _banner(),
+                //_banner(),
                 _titulo(),
                 _textoSig("Datos"),
-                _datosString(),
+                _datoValor("Nombre", datos.fullName ?? ""),
+                _datoValor("Dirección", datos.address ?? ""),
+                _datoValor("CURP", datos.personalIdNumber ?? ""),
+                _datoValor("Número de\ndocumento", datos.documentNumber ?? ""),
+                _datoValor("Clave", datos.documentAdditionalNumber ?? ""),
+                _datoValor(
+                    "Sexo", (datos.sex ?? "M") == "M" ? "Mujer" : "Hombre"),
+                _datoValor("Nacionalidad", datos.nationality ?? ""),
+                _datoValor(
+                    "Fecha de\nnacimiento", buildDateResult(datos.dateOfBirth)),
+                _datoValor("Edad", datos.age?.toString() ?? ""),
+                _datoValor(
+                    "Fecha de\nemisión", buildDateResult(datos.dateOfIssue)),
+                _datoValor("Fecha de\nexpiración",
+                    buildDateResult(datos.dateOfExpiry)),
+                //_datosString(),
                 _fotoFacial(),
                 _fotoFrontal(),
                 _fotoTrasera(),
@@ -69,6 +91,56 @@ class _DatosPageState extends State<DatosPage> {
                 SizedBox(height: 25)
               ],
             ),
+          ),
+        ));
+  }
+
+  String buildDateResult(Date? result) {
+    if (result == null || result.year == 0) {
+      return "";
+    }
+
+    return buildResult("${result.day}/${result.month}/${result.year}");
+  }
+
+  String buildResult(String? result) {
+    if (result == null || result.isEmpty) {
+      return "";
+    }
+
+    return result;
+  }
+
+  _datoValor(String dato, String valor) {
+    return Container(
+        height: 70,
+        width: w,
+        //alignment: Alignment.center,
+        child: Container(
+          //width: 65,
+          margin: EdgeInsets.symmetric(horizontal: 40),
+          height: 65,
+          child: Row(
+            children: [
+              Text(
+                dato + ": ",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              ),
+              SizedBox(
+                width: 20,
+              ),
+              Expanded(
+                //width: 170,
+                child: TextField(
+                  enabled: false,
+                  //expands: true,
+                  //maxLength: 100,
+                  maxLines: 2,
+                  minLines: 1,
+                  controller: TextEditingController(text: valor),
+                ),
+              )
+            ],
           ),
         ));
   }
@@ -125,7 +197,8 @@ class _DatosPageState extends State<DatosPage> {
   }
 
   _datosString() {
-    return Text(datos);
+    print(datos.fullName);
+    return Text(datosString);
   }
 
   _ptLogo() {
@@ -150,9 +223,13 @@ class _DatosPageState extends State<DatosPage> {
         minWidth: 180,
         height: 54,
         color: Color(0xffDB3028),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(context).push(MaterialPageRoute<void>(
+            builder: (BuildContext context) => EncuestaPage1(),
+          ));
+        },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        child: Text("Enviar",
+        child: Text("Continuar",
             style: TextStyle(
                 color: Colors.white,
                 fontSize: 14,
@@ -197,9 +274,9 @@ class _DatosPageState extends State<DatosPage> {
 
   _banner() {
     return Container(
-      height: 100,
-      width: w,
-      child: Image.asset("assets/images/fondoRojo.jpeg", fit: BoxFit.fitWidth),
-    );
+        height: 100,
+        width: w,
+        child:
+            Image.asset("assets/images/fondoRojo.jpeg", fit: BoxFit.fitWidth));
   }
 }

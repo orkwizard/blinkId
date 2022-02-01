@@ -57,10 +57,12 @@ class _EscaneoPageState extends State<EscaneoPage> {
 
         Navigator.of(context).push(MaterialPageRoute<void>(
           builder: (BuildContext context) => DatosPage(
-              datos: _resultString,
-              fullDocumentFrontImageBase64: _fullDocumentFrontImageBase64,
-              fullDocumentBackImageBase64: _fullDocumentBackImageBase64,
-              faceImageBase64: _faceImageBase64),
+            datos: result,
+            fullDocumentFrontImageBase64: _fullDocumentFrontImageBase64,
+            fullDocumentBackImageBase64: _fullDocumentBackImageBase64,
+            faceImageBase64: _faceImageBase64,
+            datosString: _resultString,
+          ),
         ));
 
         return;
@@ -168,7 +170,9 @@ class _EscaneoPageState extends State<EscaneoPage> {
 
     return Scaffold(
         appBar: AppBar(
-          toolbarHeight: 0,
+          flexibleSpace: _banner(),
+          elevation: 0,
+          //toolbarHeight: ,
         ),
         body: GestureDetector(
           onTap: () {
@@ -180,11 +184,11 @@ class _EscaneoPageState extends State<EscaneoPage> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                _banner(),
+                //_banner(),
                 _titulo(),
                 _textoSig(),
                 _scanear(),
-                //_enviar(),
+                _enviar(),
                 SizedBox(height: 50),
                 _ptLogo(),
                 SizedBox(height: 25)
@@ -238,7 +242,9 @@ class _EscaneoPageState extends State<EscaneoPage> {
         minWidth: 180,
         height: 54,
         color: Color(0xffDB3028),
-        onPressed: () {},
+        onPressed: () {
+          scan();
+        },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         child: Text("Enviar",
             style: TextStyle(
